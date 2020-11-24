@@ -292,6 +292,10 @@ public class DriverXtreme {
     static void save_obj(OutputObject outputObject,String output_file_name,boolean generate_report){
         save_to_text_file(outputObject,output_file_name);
         if(!generate_report){
+            System.out.println("Your actual program execution took " + (time_taken.get(0) / Math.pow(10, 9)) + " seconds");
+            System.out.println("for " + total_ops.get(0) + " operations");
+            System.out.println("averaging " + (total_ops.get(0) / (time_taken.get(0) / Math.pow(10, 9))) + " operations per second");
+
             return;
         }
         try {
