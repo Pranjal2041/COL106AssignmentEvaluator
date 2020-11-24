@@ -7,25 +7,7 @@ import java.util.Scanner;
 
 public class DriverXtreme {
 
-/***
-     Steps:-
 
-     1.) Change assignment number (`int assign_num`) in Main.java. Default is 2
-
-     2.) Run make file with command make build
-
-     3.) Execute java Main.java and enter your first name.
-
-     4.) After some time an output folder with your name will be created.
-     '.ser' file contains all variable info and can be used for checking quickly exactly where
-     the output might have gone wrong. While the '.in' file contains the sys output
-     (including that from sanity and defrag).
-
-     5.) zip the output folder and send them to me, or add it to
-     https://drive.google.com/drive/folders/1K6yCRf0NrWPPIus3Dx8PGuwZpKWIDTgT?usp=sharing.
-
-     Enjoy :)
-***/
 
     // Change these lines if needed
     static final long SEED = 120411;   // Seed value, changing seed value creates different inputs
