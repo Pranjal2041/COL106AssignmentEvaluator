@@ -13,7 +13,7 @@
 * Q.) Program stuck in loop?
     A.) Ideally it should not take more than 1 minute to run the program. But if it does take it is possible that your algorithm in stuck in loop.(Note even if your getFirst and getNext is bugged the output will be different)
 * Q.) My output is different?
-    A.) I in no way can gurantee that the output files provided by me are correct. Nonetheless, I have tried to ensure that my output is correct. But if you are confident, that output files are incorrect, please open an issue. You can also compare your outputs with friends, by changing the appropriate files.
+    A.) In no way can I guarantee that the output files provided by me are correct. Nonetheless, I have tried to ensure that my output is correct. But if you are confident, that output files are incorrect, please open an issue. You can also compare your outputs with friends, by changing the appropriate files.
    
 ### For Advanced Users
 
