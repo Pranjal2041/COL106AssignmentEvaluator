@@ -4,7 +4,7 @@
 
 * Clone the repo or download the zip.
 * Replace corresponding java files with your files.
-* Run command `make clean` followed by `make all`. (Alternatively use `make build`).
+* Run command `make clean` followed by `make all`. (Alternatively use `make run`).
 * Run java DriverXtreme.java.
 * Enter your first name and wait for some time. The program will automatically generate two named input files and generate 2 output files doing over 5 million operations. Then it will automatically compare your output from mine and display the result. Also note this program tests all 4 main functions(Free,Allocate,Defragment,Sanity)
 
