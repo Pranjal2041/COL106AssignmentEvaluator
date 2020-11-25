@@ -28,7 +28,7 @@ Using a fixed random seed value the program generates two test cases. These case
 * Sanity function is also called on both freeBlk,allocBlk in around 4% of all operations in a test case. If sanity detects issue in your freeBlk or allocBlk, same is displayed on console. In such a case you need to either fix sanity function or your other functions.
 
 #### Report
-* The Driver code is so designed that it keeps track of all important variables that may be helpful in case your output doesn't match. This includes time taken,freeBlk size, allocBlk size,input value,command... The ouput of this is saved in an .ser file. This file can be opened and compared using jupyter notebook which I will upload soon after updating its documentation. See Advanced section for more details.
+* The Driver code is so designed that it keeps track of all important variables that may be helpful in case your output doesn't match. This includes time taken,freeBlk size, allocBlk size,input value,command... The ouput of this is saved in an .ser file. This file can be opened and compared using jupyter notebook which `ReportEvaluater.ipynb`. If youd don't know what jupyter notebooks are please see https://www.dataquest.io/blog/jupyter-notebook-tutorial/ . If you dont want to install jupyter you can use Binder  which runs jupyter notebook on cloud and is relatively fast. [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Pranjal2041/COL106AssignmentEvaluater/HEAD)
 
 
 
@@ -47,7 +47,7 @@ The program is quite modular in its design, and can be used to generate differen
 
 5. `root_path`:- Change the root path of all files. Only useful if you are using some ide to run your code(As it may have a different root path set).
 
-6. `generateReport`:- Enable it to use the best feature of this program (Just remember that this will take a lot of time to run). Stores time taken in each of your operations,can be used to pinpoint the exact command where your program went wrong and a lot more. I will release the accompanying jupyter notebook soon after updating its documentation.
+6. `generateReport`:- Enable it to use the best feature of this program (Just remember that this will take a lot of time to run). Stores time taken in each of your operations,can be used to pinpoint the exact command where your program went wrong and a lot more. I have released the accompanying jupyter notebook `ReportEvaluater.ipynb`. You can use it to explore your .ser file and importantly compare it with others.
 
 There is still a lot more in this whole program than what this documentation has described. Just go through DriverXtreme.java to see details.
 
