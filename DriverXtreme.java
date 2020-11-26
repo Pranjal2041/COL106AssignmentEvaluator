@@ -11,7 +11,7 @@ public class DriverXtreme {
 
     // Change these lines if needed
     static final long SEED = 120411;   // Seed value, changing seed value creates different inputs
-    static final int assign_num = 2;   // Change according to which assignment you want to evaluate
+    static final int assign_num = 3;   // Change according to which assignment you want to evaluate
     static final int[] test_cases_lengths = {200,1500}; // Length of test cases (Keep the order same for comparing different outputs)
     static final String[] test_cases_names = {"small","large"}; // Name of test case generated
     static final boolean generateReport = false;  // Useful if your output doesn't match. Useful details of object is stored, which 
@@ -197,9 +197,8 @@ public class DriverXtreme {
                 total_ops.set(4,total_ops.get(4)+1);
 
                 if(val<0){
-                    result = obj.Free(-val);
-
                     start = System.nanoTime();
+                    result = obj.Free(-val);
                     outputObject.addCommand(command,val,result,-1,-val);
                 }
                 else {
@@ -212,9 +211,8 @@ public class DriverXtreme {
                     } else {
                         corr_addr = -1;
                     }
-                    result = obj.Free(corr_addr);
-
                     start = System.nanoTime();
+                    result = obj.Free(corr_addr);
                     outputObject.addCommand(command,val,result,corr,corr_addr);
                 }
                 time = System.nanoTime()-start;
@@ -480,12 +478,12 @@ class TestCaseGenerator{
             myWriter.write(test_cases+"\n");
 
             for (int i = 0; i < test_cases; i++) {
-                if ((100.0 * i / test_cases) % 1 == 0 && i != 0) {
+                if ((100.0 * i / test_cases) % 10 == 0 && i != 0) {
                     System.out.println("Generation " + (100*i/test_cases) + "% complete");
                 }
                 addCase(1000 * (i + 1), myWriter, test_cases > 1000 && i > 800 && i < 1000);
             }
-            System.out.println("Generation of " + suff + "Complete");
+            System.out.println("Generation of " + suff + " Complete");
 
             myWriter.close();
         }catch (Exception e){
