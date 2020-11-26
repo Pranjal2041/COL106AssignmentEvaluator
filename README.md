@@ -1,5 +1,9 @@
 ## Unofficial Script for evaluating Assignments(1-3)
 
+### Updates
+
+* Now default is set to Assignment 3.
+
 ### How To Use
 
 * Clone the repo or download the zip.
