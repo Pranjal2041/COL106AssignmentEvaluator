@@ -5,6 +5,7 @@
 * Now default is set to Assignment 3.
 * New Test Cases which are smaller for faster inference. To test larger test file run `java DriverXtreme --large`.
 * Show the command executed after which first difference in output files is found, for faster debugging.
+* Show the command executed in case an error is thrown or program is stuck in loop.
 
 ### How To Use
 
