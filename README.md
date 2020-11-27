@@ -3,6 +3,8 @@
 ### Updates
 
 * Now default is set to Assignment 3.
+* New Test Cases which are smaller for faster inference. To test larger test file run `java DriverXtreme --large`.
+* Show the command run where first difference in output files is found, for faster debugging.
 
 ### How To Use
 
@@ -52,6 +54,14 @@ The program is quite modular in its design, and can be used to generate differen
 5. `root_path`:- Change the root path of all files. Only useful if you are using some ide to run your code(As it may have a different root path set).
 
 6. `generateReport`:- Enable it to use the best feature of this program (Just remember that this will take a lot of time to run). Stores time taken in each of your operations,can be used to pinpoint the exact command where your program went wrong and a lot more. I have released the accompanying jupyter notebook `ReportEvaluater.ipynb`. You can use it to explore your .ser file and importantly compare it with others.
+
+### Argument parsing
+
+To use enter these commands after java DriverXtreme. For example to invoke all arguments, type `java DriverXtreme --large --report 3`
+
+* `--large` :- Use to enable large test case
+* `--report` :- Enables report generation
+* assign_num :- Enter assignment number to check your code on (Default is 3).
 
 There is still a lot more in this whole program than what this documentation has described. Just go through DriverXtreme.java to see details.
 
