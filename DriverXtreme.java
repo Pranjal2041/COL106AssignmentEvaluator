@@ -5,25 +5,27 @@ import java.util.Random;
 import java.util.Scanner;
 
 
+
 public class DriverXtreme {
 
 
 
     // Change these lines if needed
     static final long SEED = 120411;   // Seed value, changing seed value creates different inputs
-    static final int assign_num = 3;   // Change according to which assignment you want to evaluate
-    static final int[] test_cases_lengths = {200,1500}; // Length of test cases (Keep the order same for comparing different outputs)
-    static final String[] test_cases_names = {"small","large"}; // Name of test case generated
-    static final boolean generateReport = false;  // Useful if your output doesn't match. Useful details of object is stored, which 
+    static int assign_num = 3;   // Change according to which assignment you want to evaluate
+    static final int[] test_cases_lengths = {250,600,1500}; // Length of test cases (Keep the order same for comparing different outputs)
+    static final String[] test_cases_names = {"small","medium","large"}; // Name of test case generated
+    static boolean generateReport = false;  // Useful if your output doesn't match. Useful details of object is stored, which 
                                                   // can be checked using accompanying jupyter notebook
 
     // Comment the next line if you don't want to evaluate
-    static final String[] correct_outputs = {"pranjal_output_small_120411.out","pranjal_output_large_120411.out"};
+    static final String[] correct_outputs = {"pranjal_output_small_120411.out","pranjal_output_medium_120411.out","pranjal_output_large_120411.out"};
     // static final String[] correct_outputs = {};
 
 
     static final String root_path = ".";
     
+    static boolean largeTestCases = false;
    
    
    
@@ -39,6 +41,13 @@ public class DriverXtreme {
 
     public static void main(String[] args) throws IOException {
 
+        ArgParser argParser = new ArgParser(largeTestCases,assign_num,generateReport);
+
+        argParser.parseArguments(args);
+        largeTestCases = argParser.largeTestCase;
+        assign_num = argParser.assign_num;
+        generateReport = argParser.generateReport;
+
 
         // GENERATE TEST CASES
         Scanner sc = new Scanner(System.in);
@@ -50,26 +59,112 @@ public class DriverXtreme {
         TestCaseGenerator testCaseGenerator = new TestCaseGenerator(SEED,name,root_path,assign_num,output_folder,PRIME);
         String[] file_names = new String[test_cases_lengths.length];
         for(int i=0;i<file_names.length;i++){
+            if(test_cases_lengths[i]>=1000 && !largeTestCases){
+                continue;
+            }
             file_names[i] = testCaseGenerator.generateTestCases(test_cases_lengths[i],test_cases_names[i]);
         }
         System.out.println("Test Cases Generated Successfully");
-
+        OutputObject[] outputObjs = new OutputObject[file_names.length];
         for(int i=0;i<file_names.length;i++){
-            testInputs(file_names[i]+".in",output_folder+"/"+name+"_output"+"_"+test_cases_names[i]+"_"+SEED,generateReport);
+            if(test_cases_lengths[i]>=1000 && !largeTestCases){
+                continue;
+            }
+            outputObjs[i] =  testInputs(file_names[i]+".in",output_folder+"/"+name+"_output"+"_"+test_cases_names[i]+"_"+SEED,generateReport);
             resetTimeTaken();
         }
 
         CodeEvaluater codeEvaluater = new CodeEvaluater();
         for(int i=0;i<correct_outputs.length;i++){
+            if(test_cases_lengths[i]>=1000 && !largeTestCases){
+                continue;
+            }
             boolean temp = codeEvaluater.evaluateCode(root_path + "/" + output_folder+"/"+name+"_output"+"_"+test_cases_names[i]+"_"+SEED+".out",root_path+"/"+correct_outputs[i]);
             if(temp){
                 System.out.println("Output of "+test_cases_names[i]+" has matched");
             }else{
                 System.out.println("Output of "+test_cases_names[i]+" doesnt match");
+                System.out.println("-----------------------");
+                System.out.println("Loading first point of difference. Please Wait...");
+                getFirstPointOfDifference(i, outputObjs[i]);
             }
         }
 
     }
+
+    static boolean command_are_equal(Command a,Command b){
+        boolean first_por = a.type.equals(b.type);
+        if(a.val!=null && b.val!=null){
+            first_por = first_por && a.val.intValue() ==b.val.intValue();
+        }
+        if(a.output!=null && b.output!=null){
+            first_por = first_por && a.output.intValue() ==b.output.intValue();
+        }
+        if(a.corr!=null && b.corr!=null){
+            first_por = first_por && a.corr.intValue()==b.corr.intValue() && a.corr_addr.intValue() == b.corr_addr.intValue(); 
+        }
+
+        if(a.allocSize!=null && b.allocSize!=null){
+            first_por = first_por && a.allocSize.intValue() == b.allocSize.intValue() && a.freeSize.intValue()==b.freeSize.intValue(); 
+        }
+
+        return first_por;
+    }
+
+    static void getFirstPointOfDifference(int idx,OutputObject orig){
+        String path = root_path+"/outputs/"+correct_outputs[idx].replace(".out", ".ser");
+        OutputObject corr = loadObject(path);
+
+        if(corr.num_test!=orig.num_test || orig.num_test!=orig.testCases.size() || corr.num_test!=corr.testCases.size()){
+            System.out.println("Looks like number of test cases in files don't match. Make sure you are checking against correct input file and try again.");
+            return;
+        }
+        int t = corr.num_test;
+        for(int i=0;i<t;i++){
+            TestCase testCaseOrig = orig.testCases.get(i);
+            TestCase testCaseCorr = corr.testCases.get(i);
+            
+
+            if(testCaseCorr.n_commands!=testCaseOrig.n_commands || testCaseCorr.n_commands!=testCaseCorr.commands.size() || testCaseOrig.n_commands!=testCaseOrig.commands.size()){
+                System.out.println("Looks like number of commands in test case"+(i+1)+" in files don't match. Make sure you are checking against correct input file and try again.");
+                return;
+            }
+            int n_comm = testCaseCorr.n_commands;
+            for(int j=0;j<n_comm;j++){
+                Command commOrig = testCaseOrig.commands.get(j);
+                Command commCorr = testCaseCorr.commands.get(j);
+                if(!command_are_equal(commOrig, commCorr)){
+                    System.out.println("The first point of difference is in Test Case: "+(i+1)+" Comm. numb: "+(j+1));
+                    if(!commCorr.type.equals(commOrig.type) || !commCorr.val.equals(commOrig.val)){
+                        System.out.println(commOrig.type+" "+commCorr.type);
+                        System.out.println(commOrig.val.equals(commCorr.val));
+                        System.out.println("Commands executed are different. Possible issue in checker file");
+                        return;
+                    }
+                    System.out.println("Command executed:- "+commCorr.type+" "+commCorr.val);
+                    if(commCorr.type=="Free"){
+                        if(commCorr.corr_addr == commOrig.corr_addr){
+                            System.out.println("Which corresponds to freeing address "+commCorr.corr_addr);
+                        }else{
+                            System.out.println("Which corresponds to freeing address "+commOrig.corr_addr+" in your case");
+                            System.out.println("Which corresponds to freeing address "+commCorr.corr_addr+" in proposed correct output");
+                            System.out.println("This happens because of difference in sizes of freeBlk/allocBlk and is not a problem with test case.");
+                        }
+                    }
+                    System.out.println("Yours  :-  Output:- "+commOrig.output+" FreeBlk Size:- "+commOrig.freeSize+" AllocBlk Size:- "+commOrig.allocSize);
+                    System.out.println("Correct:-  Output:- "+commCorr.output+" FreeBlk Size:- "+commCorr.freeSize+" AllocBlk Size:- "+commCorr.allocSize);
+                    System.out.println("Use accompanying jupyter notebook to see further details");
+                    System.out.println("-----------------------");
+                    return;
+                }
+            }
+
+        }
+
+        
+
+    }
+
 
     static void resetTimeTaken(){
         for(int i=0;i<time_taken.size();i++){
@@ -78,7 +173,7 @@ public class DriverXtreme {
         }
     }
 
-    static void testInputs(String file_name,String output_file_name,boolean generateReport) throws FileNotFoundException {
+    static OutputObject testInputs(String file_name,String output_file_name,boolean generateReport) throws FileNotFoundException {
         //noinspection ConstantConditions
         FileReader fileReader = new FileReader(root_path.equals("") ?file_name:root_path+"/"+file_name);
         System.out.println("Starting. Will take some time...");
@@ -127,7 +222,7 @@ public class DriverXtreme {
                     command = fileReader.getNext();
                 }catch (Exception e){
                     System.out.println("An exception has occured"+e+"\nnum_commands"+numCommands+" t_case"+numTestCases);
-                    return;
+                    return null;
                 }
 //                if(numTestCases==0 && numCommands==462){
 //                    System.out.println("Ok so"+command);
@@ -137,14 +232,13 @@ public class DriverXtreme {
                 if(!(command.equals("Defrag") || command.equals("Sanity"))) {
                     val = fileReader.getNextInt();
                 }
-
-
                 handleCases(command,val,obj,outputObject);
             }
         }
         outputObject.time_taken = time_taken;
         outputObject.total_ops = total_ops;
         save_obj(outputObject,output_file_name,generateReport);
+        return outputObject;
     }
 
     static void handleCases(String command,int val,DynamicMem obj,OutputObject outputObject){
@@ -190,7 +284,6 @@ public class DriverXtreme {
                 time = System.nanoTime()-start;
                 time_taken.set(3, time_taken.get(3) + (double) time);
                 time_taken.set(0, time_taken.get(0) + (double) time);
-
                 outputObject.addCommand(command,val,result,null,null);
                 break;
             case "Free":
@@ -271,16 +364,10 @@ public class DriverXtreme {
             }
         }
         try {
-//            FileOutputStream fileOut =
-//                    new FileOutputStream(root_path+"/"+output_file_name+".txt");
-//            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-//            out.writeBytes(String.valueOf(outp));
-//            out.close();
-//            fileOut.close();
             FileWriter myWriter = new FileWriter(root_path+"/"+output_file_name+".out");
             myWriter.write(String.valueOf(outp));
             myWriter.close();
-            System.out.println("Sys Output File is saved in "+output_file_name+".in");
+            System.out.println("Sys Output File is saved in "+output_file_name+".out");
         } catch (IOException i) {
             i.printStackTrace();
         }
@@ -320,9 +407,72 @@ public class DriverXtreme {
         }
     }
 
+    static OutputObject loadObject(String path){
+        OutputObject obj;
+
+        try {
+            System.out.println("Opening file "+path);
+            FileInputStream fileIn = new FileInputStream(path);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            obj = (OutputObject) in.readObject();
+            in.close();
+            fileIn.close();
+         }catch(FileNotFoundException e){
+             System.out.println("Cannot find .ser file for generating report");
+             return null;
+         } 
+         catch (IOException i) {
+            i.printStackTrace();
+            return null;
+         } catch (ClassNotFoundException c) {
+            System.out.println(".ser file not found,Cannot generate first point of difference");
+            c.printStackTrace();
+            return null;
+         }
+
+         return obj;
+    }
+
 
 }
 
+
+class ArgParser{
+
+    boolean largeTestCase;
+    int assign_num;
+    boolean generateReport;
+
+    ArgParser(boolean largeTestCase,int assign_num,boolean generateReport){
+        this.largeTestCase = largeTestCase;
+        this.assign_num = assign_num;
+        this.generateReport = generateReport;
+    }
+
+    void parseArguments(String[] args){
+        for(String a: args){
+            switch(a){
+                case "--large":
+                    this.largeTestCase = true;
+                    break;
+                case "--report":
+                    this.generateReport = true;
+                    break;
+                default:
+                    if(a.matches("-?\\d+")){
+                        int n = Integer.parseInt(a);
+                        if(n>3 || n<0){
+                            System.out.println("Invalid Assignment Number");
+                        }else{
+                            this.assign_num = n;
+                        }
+                    }
+
+                }
+        }
+    }
+
+}
 
 
 class MBElement implements Serializable{
