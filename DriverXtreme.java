@@ -4,37 +4,30 @@ import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-
-
 public class DriverXtreme {
 
-
-
     // Change these lines if needed
-    static final long SEED = 120411;   // Seed value, changing seed value creates different inputs
-    static int assign_num = 3;   // Change according to which assignment you want to evaluate
-    static final int[] test_cases_lengths = {250,600,1500}; // Length of test cases (Keep the order same for comparing different outputs)
-    static final String[] test_cases_names = {"small","medium","large"}; // Name of test case generated
-    static boolean generateReport = false;  // Useful if your output doesn't match. Useful details of object is stored, which 
-                                                  // can be checked using accompanying jupyter notebook
+    static final long SEED = 120411; // Seed value, changing seed value creates different inputs
+    static int assign_num = 3; // Change according to which assignment you want to evaluate
+    static final int[] test_cases_lengths = { 250, 600, 1500 }; // Length of test cases (Keep the order same for
+                                                                // comparing different outputs)
+    static final String[] test_cases_names = { "small", "medium", "large" }; // Name of test case generated
+    static boolean generateReport = false; // Useful if your output doesn't match. Useful details of object is stored,
+                                           // which
+                                           // can be checked using accompanying jupyter notebook
 
     // Comment the next line if you don't want to evaluate
-    static final String[] correct_outputs = {"pranjal_output_small_120411.out","pranjal_output_medium_120411.out","pranjal_output_large_120411.out"};
+    static final String[] correct_outputs = { "pranjal_output_small_120411.out", "pranjal_output_medium_120411.out",
+            "pranjal_output_large_120411.out" };
     // static final String[] correct_outputs = {};
 
-
     static final String root_path = ".";
-    
+
     static boolean largeTestCases = false;
-   
-   
-   
 
-
-   
     static String name;
     static String output_folder;
-    static final int PRIME = 1000003;   // 1 Million + 3
+    static final int PRIME = 1000003; // 1 Million + 3
 
     static List<Double> time_taken;
     static List<Integer> total_ops;
@@ -42,49 +35,50 @@ public class DriverXtreme {
 
     public static void main(String[] args) throws IOException {
 
-        ArgParser argParser = new ArgParser(largeTestCases,assign_num,generateReport);
+        ArgParser argParser = new ArgParser(largeTestCases, assign_num, generateReport);
 
         argParser.parseArguments(args);
         largeTestCases = argParser.largeTestCase;
         assign_num = argParser.assign_num;
         generateReport = argParser.generateReport;
 
-
         // GENERATE TEST CASES
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter your first name");
         name = sc.nextLine();
-        output_folder = name + "_" + "assign" + assign_num+"_output";
+        output_folder = name + "_" + "assign" + assign_num + "_output";
 
-
-        TestCaseGenerator testCaseGenerator = new TestCaseGenerator(SEED,name,root_path,assign_num,output_folder,PRIME);
+        TestCaseGenerator testCaseGenerator = new TestCaseGenerator(SEED, name, root_path, assign_num, output_folder,
+                PRIME);
         String[] file_names = new String[test_cases_lengths.length];
-        for(int i=0;i<file_names.length;i++){
-            if(test_cases_lengths[i]>=1000 && !largeTestCases){
+        for (int i = 0; i < file_names.length; i++) {
+            if (test_cases_lengths[i] >= 1000 && !largeTestCases) {
                 continue;
             }
-            file_names[i] = testCaseGenerator.generateTestCases(test_cases_lengths[i],test_cases_names[i]);
+            file_names[i] = testCaseGenerator.generateTestCases(test_cases_lengths[i], test_cases_names[i]);
         }
         System.out.println("Test Cases Generated Successfully");
         OutputObject[] outputObjs = new OutputObject[file_names.length];
-        for(int i=0;i<file_names.length;i++){
-            if(test_cases_lengths[i]>=1000 && !largeTestCases){
+        for (int i = 0; i < file_names.length; i++) {
+            if (test_cases_lengths[i] >= 1000 && !largeTestCases) {
                 continue;
             }
-            outputObjs[i] =  testInputs(file_names[i]+".in",output_folder+"/"+name+"_output"+"_"+test_cases_names[i]+"_"+SEED,generateReport);
+            outputObjs[i] = testInputs(file_names[i] + ".in",
+                    output_folder + "/" + name + "_output" + "_" + test_cases_names[i] + "_" + SEED, generateReport);
             resetTimeTaken();
         }
 
         CodeEvaluater codeEvaluater = new CodeEvaluater();
-        for(int i=0;i<correct_outputs.length;i++){
-            if(test_cases_lengths[i]>=1000 && !largeTestCases){
+        for (int i = 0; i < correct_outputs.length; i++) {
+            if (test_cases_lengths[i] >= 1000 && !largeTestCases) {
                 continue;
             }
-            boolean temp = codeEvaluater.evaluateCode(root_path + "/" + output_folder+"/"+name+"_output"+"_"+test_cases_names[i]+"_"+SEED+".out",root_path+"/"+correct_outputs[i]);
-            if(temp){
-                System.out.println("Output of "+test_cases_names[i]+" has matched");
-            }else{
-                System.out.println("Output of "+test_cases_names[i]+" doesnt match");
+            boolean temp = codeEvaluater.evaluateCode(root_path + "/" + output_folder + "/" + name + "_output" + "_"
+                    + test_cases_names[i] + "_" + SEED + ".out", root_path + "/" + correct_outputs[i]);
+            if (temp) {
+                System.out.println("Output of " + test_cases_names[i] + " has matched");
+            } else {
+                System.out.println("Output of " + test_cases_names[i] + " doesnt match");
                 System.out.println("-----------------------");
                 System.out.println("Loading first point of difference. Please Wait...");
                 getFirstPointOfDifference(i, outputObjs[i]);
@@ -93,67 +87,79 @@ public class DriverXtreme {
 
     }
 
-    static boolean command_are_equal(Command a,Command b){
+    static boolean command_are_equal(Command a, Command b) {
         boolean first_por = a.type.equals(b.type);
-        if(a.val!=null && b.val!=null){
-            first_por = first_por && a.val.intValue() ==b.val.intValue();
+        if (a.val != null && b.val != null) {
+            first_por = first_por && a.val.intValue() == b.val.intValue();
         }
-        if(a.output!=null && b.output!=null){
-            first_por = first_por && a.output.intValue() ==b.output.intValue();
+        if (a.output != null && b.output != null) {
+            first_por = first_por && a.output.intValue() == b.output.intValue();
         }
-        if(a.corr!=null && b.corr!=null){
-            first_por = first_por && a.corr.intValue()==b.corr.intValue() && a.corr_addr.intValue() == b.corr_addr.intValue(); 
+        if (a.corr != null && b.corr != null) {
+            first_por = first_por && a.corr.intValue() == b.corr.intValue()
+                    && a.corr_addr.intValue() == b.corr_addr.intValue();
         }
 
-        if(a.allocSize!=null && b.allocSize!=null){
-            first_por = first_por && a.allocSize.intValue() == b.allocSize.intValue() && a.freeSize.intValue()==b.freeSize.intValue(); 
+        if (a.allocSize != null && b.allocSize != null) {
+            first_por = first_por && a.allocSize.intValue() == b.allocSize.intValue()
+                    && a.freeSize.intValue() == b.freeSize.intValue();
         }
 
         return first_por;
     }
 
-    static void getFirstPointOfDifference(int idx,OutputObject orig){
-        String path = root_path+"/outputs/"+correct_outputs[idx].replace(".out", ".ser");
+    static void getFirstPointOfDifference(int idx, OutputObject orig) {
+        String path = root_path + "/outputs/" + correct_outputs[idx].replace(".out", ".ser");
         OutputObject corr = loadObject(path);
 
-        if(corr.num_test!=orig.num_test || orig.num_test!=orig.testCases.size() || corr.num_test!=corr.testCases.size()){
-            System.out.println("Looks like number of test cases in files don't match. Make sure you are checking against correct input file and try again.");
+        if (corr.num_test != orig.num_test || orig.num_test != orig.testCases.size()
+                || corr.num_test != corr.testCases.size()) {
+            System.out.println(
+                    "Looks like number of test cases in files don't match. Make sure you are checking against correct input file and try again.");
             return;
         }
         int t = corr.num_test;
-        for(int i=0;i<t;i++){
+        for (int i = 0; i < t; i++) {
             TestCase testCaseOrig = orig.testCases.get(i);
             TestCase testCaseCorr = corr.testCases.get(i);
-            
 
-            if(testCaseCorr.n_commands!=testCaseOrig.n_commands || testCaseCorr.n_commands!=testCaseCorr.commands.size() || testCaseOrig.n_commands!=testCaseOrig.commands.size()){
-                System.out.println("Looks like number of commands in test case"+(i+1)+" in files don't match. Make sure you are checking against correct input file and try again.");
+            if (testCaseCorr.n_commands != testCaseOrig.n_commands
+                    || testCaseCorr.n_commands != testCaseCorr.commands.size()
+                    || testCaseOrig.n_commands != testCaseOrig.commands.size()) {
+                System.out.println("Looks like number of commands in test case" + (i + 1)
+                        + " in files don't match. Make sure you are checking against correct input file and try again.");
                 return;
             }
             int n_comm = testCaseCorr.n_commands;
-            for(int j=0;j<n_comm;j++){
+            for (int j = 0; j < n_comm; j++) {
                 Command commOrig = testCaseOrig.commands.get(j);
                 Command commCorr = testCaseCorr.commands.get(j);
-                if(!command_are_equal(commOrig, commCorr)){
-                    System.out.println("The first point of difference is in Test Case: "+(i+1)+" Comm. numb: "+(j+1));
-                    if(!commCorr.type.equals(commOrig.type) || !commCorr.val.equals(commOrig.val)){
-                        System.out.println(commOrig.type+" "+commCorr.type);
+                if (!command_are_equal(commOrig, commCorr)) {
+                    System.out.println(
+                            "The first point of difference is in Test Case: " + (i + 1) + " Comm. numb: " + (j + 1));
+                    if (!commCorr.type.equals(commOrig.type) || !commCorr.val.equals(commOrig.val)) {
+                        System.out.println(commOrig.type + " " + commCorr.type);
                         System.out.println(commOrig.val.equals(commCorr.val));
                         System.out.println("Commands executed are different. Possible issue in checker file");
                         return;
                     }
-                    System.out.println("Command executed:- "+commCorr.type+" "+commCorr.val);
-                    if(commCorr.type=="Free"){
-                        if(commCorr.corr_addr == commOrig.corr_addr){
-                            System.out.println("Which corresponds to freeing address "+commCorr.corr_addr);
-                        }else{
-                            System.out.println("Which corresponds to freeing address "+commOrig.corr_addr+" in your case");
-                            System.out.println("Which corresponds to freeing address "+commCorr.corr_addr+" in proposed correct output");
-                            System.out.println("This happens because of difference in sizes of freeBlk/allocBlk and is not a problem with test case.");
+                    System.out.println("Command executed:- " + commCorr.type + " " + commCorr.val);
+                    if (commCorr.type == "Free") {
+                        if (commCorr.corr_addr == commOrig.corr_addr) {
+                            System.out.println("Which corresponds to freeing address " + commCorr.corr_addr);
+                        } else {
+                            System.out.println(
+                                    "Which corresponds to freeing address " + commOrig.corr_addr + " in your case");
+                            System.out.println("Which corresponds to freeing address " + commCorr.corr_addr
+                                    + " in proposed correct output");
+                            System.out.println(
+                                    "This happens because of difference in sizes of freeBlk/allocBlk and is not a problem with test case.");
                         }
                     }
-                    System.out.println("Yours  :-  Output:- "+commOrig.output+" FreeBlk Size:- "+commOrig.freeSize+" AllocBlk Size:- "+commOrig.allocSize);
-                    System.out.println("Correct:-  Output:- "+commCorr.output+" FreeBlk Size:- "+commCorr.freeSize+" AllocBlk Size:- "+commCorr.allocSize);
+                    System.out.println("Yours  :-  Output:- " + commOrig.output + " FreeBlk Size:- " + commOrig.freeSize
+                            + " AllocBlk Size:- " + commOrig.allocSize);
+                    System.out.println("Correct:-  Output:- " + commCorr.output + " FreeBlk Size:- " + commCorr.freeSize
+                            + " AllocBlk Size:- " + commCorr.allocSize);
                     System.out.println("Use accompanying jupyter notebook to see further details");
                     System.out.println("-----------------------");
                     return;
@@ -162,29 +168,27 @@ public class DriverXtreme {
 
         }
 
-        
-
     }
 
-
-    static void resetTimeTaken(){
-        for(int i=0;i<time_taken.size();i++){
-            time_taken.set(i,0.0);
-            total_ops.set(i,0);
+    static void resetTimeTaken() {
+        for (int i = 0; i < time_taken.size(); i++) {
+            time_taken.set(i, 0.0);
+            total_ops.set(i, 0);
         }
     }
 
-    static OutputObject testInputs(String file_name,String output_file_name,boolean generateReport) throws FileNotFoundException {
-        //noinspection ConstantConditions
-        FileReader fileReader = new FileReader(root_path.equals("") ?file_name:root_path+"/"+file_name);
+    static OutputObject testInputs(String file_name, String output_file_name, boolean generateReport)
+            throws FileNotFoundException {
+        // noinspection ConstantConditions
+        FileReader fileReader = new FileReader(root_path.equals("") ? file_name : root_path + "/" + file_name);
         System.out.println("Starting. Will take some time...");
-        while(fileReader.hasNext()){
-            if(fileReader.getNext().equals("START"))
+        while (fileReader.hasNext()) {
+            if (fileReader.getNext().equals("START"))
                 break;
         }
         time_taken = new ArrayList<>();
         total_ops = new ArrayList<>();
-        for(int i=0;i<5;i++){
+        for (int i = 0; i < 5; i++) {
             time_taken.add(0.0);
             total_ops.add(0);
         }
@@ -194,23 +198,23 @@ public class DriverXtreme {
         OutputObject outputObject = new OutputObject(totalTestCases);
         loopThread = new MultithreadingDemo(System.nanoTime());
         loopThread.start();
-        for(int numTestCases = 1;numTestCases<=totalTestCases;numTestCases++){
+        for (int numTestCases = 1; numTestCases <= totalTestCases; numTestCases++) {
 
             loopThread.pauseTimer();
 
             int size;
             size = fileReader.getNextInt();
             DynamicMem obj = null;
-            switch (assign_num){
+            switch (assign_num) {
                 case 1:
                     obj = new A1DynamicMem(size);
                     break;
-                //noinspection ConstantConditions
+                // noinspection ConstantConditions
                 case 2:
-                    obj = new A2DynamicMem(size,2);
+                    obj = new A2DynamicMem(size, 2);
                     break;
                 case 3:
-                    obj = new A2DynamicMem(size,3);
+                    obj = new A2DynamicMem(size, 3);
                     break;
                 default:
                     System.out.println("Not a valid assignment number");
@@ -218,36 +222,44 @@ public class DriverXtreme {
             }
             int totalCommands = fileReader.getNextInt();
 
-            outputObject.addTestCase(totalCommands,size);
+            outputObject.addTestCase(totalCommands, size);
 
             loopThread.setTime(System.nanoTime());
             loopThread.resumeTimer();
-            for(int numCommands = 1;numCommands<=totalCommands;numCommands++) {
+            for (int numCommands = 1; numCommands <= totalCommands; numCommands++) {
 
                 String command;
                 try {
                     command = fileReader.getNext();
-                }catch (Exception e){
-                    System.out.println("An exception has occured"+e+"\nnum_commands"+numCommands+" t_case"+numTestCases);
+                } catch (Exception e) {
+                    System.out.println(
+                            "An exception has occured" + e + "\nnum_commands" + numCommands + " t_case" + numTestCases);
                     return null;
                 }
-//                if(numTestCases==0 && numCommands==462){
-//                    System.out.println("Ok so"+command);
-//                }
+                // if(numTestCases==0 && numCommands==462){
+                // System.out.println("Ok so"+command);
+                // }
                 int val = -1;
 
-                if(!(command.equals("Defrag") || command.equals("Sanity"))) {
+                if (!(command.equals("Defrag") || command.equals("Sanity"))) {
                     val = fileReader.getNextInt();
                 }
-                handleCases(command,val,obj,outputObject,"Test Case:- "+numTestCases+" Command Number:-"+numCommands);
+                handleCases(command, val, obj, outputObject,
+                        "Test Case:- " + numTestCases + " Command Number:-" + numCommands);
             }
         }
 
         loopThread.pauseTimer();
         outputObject.time_taken = time_taken;
         outputObject.total_ops = total_ops;
-        save_obj(outputObject,output_file_name,generateReport);
-        loopThread.stop();
+        save_obj(outputObject, output_file_name, generateReport);
+        // loopThread.stop();
+        try {
+            loopThread.stopExecution();
+            loopThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return outputObject;
     }
 
@@ -256,7 +268,7 @@ public class DriverXtreme {
         long time = -1;
         long start;
         loopThread.setLastCommand(command+" "+val+" at "+extra_info);
-
+        try{
         switch (command) {
             case "Sanity":
                 total_ops.set(1,total_ops.get(1)+1);
@@ -271,11 +283,11 @@ public class DriverXtreme {
                 int code = 0;
                 if(!free_san){ // 00 if both right // 11 if both false
                     code += 2;
-                    System.out.println("Sanity Issue detected in FMB");
+                    // System.out.println("Sanity Issue detected in FMB");
                 }
                 if(!alloc_san){
                     code += 1;
-                    System.out.println("Sanity Issue detected in AMB");
+                    // System.out.println("Sanity Issue detected in AMB");
                 }
                 outputObject.addCommand(command,null,code,null,null);
                 break;
@@ -301,7 +313,7 @@ public class DriverXtreme {
             case "Free":
                 total_ops.set(4,total_ops.get(4)+1);
                 if(val<0){
-                    loopThread.setLastCommand("Free "+val+" at "+extra_info);
+                    loopThread.setLastCommand("Free "+val+" at "+extra_info+"\nNote:- Search for Free "+val+" in input file");
                     start = System.nanoTime();
                     result = obj.Free(-val);
                     outputObject.addCommand(command,val,result,-1,-val);
@@ -316,7 +328,7 @@ public class DriverXtreme {
                     } else {
                         corr_addr = -1;
                     }
-                    loopThread.setLastCommand("Free "+corr_addr+" at "+extra_info);
+                    loopThread.setLastCommand("Free "+corr_addr+" at "+extra_info+"\nNote:- Search for Free "+val+" in input file");
                     start = System.nanoTime();
                     result = obj.Free(corr_addr);
                     outputObject.addCommand(command,val,result,corr,corr_addr);
@@ -336,6 +348,12 @@ public class DriverXtreme {
                 "stucked in loop, either because of cycle in blks aur bugged implementation of getNext(),getFirst() \n"+
                 " at "+extra_info);
         outputObject.addToLastCommand(getSize(obj.freeBlk),getSize(obj.allocBlk));
+    }catch(Exception e){
+        System.out.println("Encountered exception");
+        e.printStackTrace();
+        System.out.println("Exception encountered at "+ loopThread.lastCommand);
+        System.exit(0);
+    }
 
 //         outputObject.addToLastCommand(getMBList(obj.freeBlk).s,getMBList(obj.allocBlk));
     }
@@ -758,12 +776,12 @@ class MultithreadingDemo extends Thread
     final int max_diff = 5000;
     String lastCommand;
     volatile boolean pause = false;
+    volatile boolean running = true;
 
     boolean checkLoop(){
 //        System.out.println("Pause inside fucntion is "+ pause);
 
         if(this.pause){
-            System.out.println("Pause is trie");
             return false;
         }
         double diff = (System.nanoTime()-this.time)/Math.pow(10,6);
@@ -780,6 +798,8 @@ class MultithreadingDemo extends Thread
     {
         while(true) {
             try {
+                if(!running)
+                break;
 //                System.out.println("Hello");
                 if(!this.pause) {
                     if (checkLoop()) {
@@ -797,6 +817,10 @@ class MultithreadingDemo extends Thread
                 e.printStackTrace();
             }
         }
+    }
+
+    void stopExecution(){
+        this.running = false;
     }
 
     void setTime(long time){
