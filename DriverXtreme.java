@@ -38,6 +38,7 @@ public class DriverXtreme {
 
     static List<Double> time_taken;
     static List<Integer> total_ops;
+    static MultithreadingDemo loopThread;
 
     public static void main(String[] args) throws IOException {
 
@@ -188,11 +189,15 @@ public class DriverXtreme {
             total_ops.add(0);
         }
 
-        int numTestCases = fileReader.getNextInt();
+        int totalTestCases = fileReader.getNextInt();
 
-        OutputObject outputObject = new OutputObject(numTestCases);
+        OutputObject outputObject = new OutputObject(totalTestCases);
+        loopThread = new MultithreadingDemo(System.nanoTime());
+        loopThread.start();
+        for(int numTestCases = 1;numTestCases<=totalTestCases;numTestCases++){
 
-        while(numTestCases-->0){
+            loopThread.pauseTimer();
+
             int size;
             size = fileReader.getNextInt();
             DynamicMem obj = null;
@@ -211,11 +216,13 @@ public class DriverXtreme {
                     System.out.println("Not a valid assignment number");
                     System.exit(0);
             }
-            int numCommands = fileReader.getNextInt();
+            int totalCommands = fileReader.getNextInt();
 
-            outputObject.addTestCase(numCommands,size);
+            outputObject.addTestCase(totalCommands,size);
 
-            while(numCommands-->0) {
+            loopThread.setTime(System.nanoTime());
+            loopThread.resumeTimer();
+            for(int numCommands = 1;numCommands<=totalCommands;numCommands++) {
 
                 String command;
                 try {
@@ -232,19 +239,24 @@ public class DriverXtreme {
                 if(!(command.equals("Defrag") || command.equals("Sanity"))) {
                     val = fileReader.getNextInt();
                 }
-                handleCases(command,val,obj,outputObject);
+                handleCases(command,val,obj,outputObject,"Test Case:- "+numTestCases+" Command Number:-"+numCommands);
             }
         }
+
+        loopThread.pauseTimer();
         outputObject.time_taken = time_taken;
         outputObject.total_ops = total_ops;
         save_obj(outputObject,output_file_name,generateReport);
+        loopThread.stop();
         return outputObject;
     }
 
-    static void handleCases(String command,int val,DynamicMem obj,OutputObject outputObject){
+    static void handleCases(String command,int val,DynamicMem obj,OutputObject outputObject,String extra_info){
         int result = -99;
         long time = -1;
         long start;
+        loopThread.setLastCommand(command+" "+val+" at "+extra_info);
+
         switch (command) {
             case "Sanity":
                 total_ops.set(1,total_ops.get(1)+1);
@@ -288,8 +300,8 @@ public class DriverXtreme {
                 break;
             case "Free":
                 total_ops.set(4,total_ops.get(4)+1);
-
                 if(val<0){
+                    loopThread.setLastCommand("Free "+val+" at "+extra_info);
                     start = System.nanoTime();
                     result = obj.Free(-val);
                     outputObject.addCommand(command,val,result,-1,-val);
@@ -304,6 +316,7 @@ public class DriverXtreme {
                     } else {
                         corr_addr = -1;
                     }
+                    loopThread.setLastCommand("Free "+corr_addr+" at "+extra_info);
                     start = System.nanoTime();
                     result = obj.Free(corr_addr);
                     outputObject.addCommand(command,val,result,corr,corr_addr);
@@ -318,9 +331,19 @@ public class DriverXtreme {
                 break;
         }
         total_ops.set(0,total_ops.get(0)+1);
+        loopThread.setTime(System.nanoTime());
+        loopThread.setLastCommand("Calculation of blk sizes \n Indicates your getNext functionality is " +
+                "stucked in loop, either because of cycle in blks aur bugged implementation of getNext(),getFirst() \n"+
+                " at "+extra_info);
         outputObject.addToLastCommand(getSize(obj.freeBlk),getSize(obj.allocBlk));
 
 //         outputObject.addToLastCommand(getMBList(obj.freeBlk).s,getMBList(obj.allocBlk));
+    }
+
+    static void forceLoop(){
+        while(true){
+            int i = 0;
+        }
     }
 
     static List<MBElement> getMBList(Dictionary free){
@@ -435,6 +458,7 @@ public class DriverXtreme {
 
 
 }
+
 
 
 class ArgParser{
@@ -725,4 +749,70 @@ class CodeEvaluater{
         }
         return true;
     }
+}
+
+
+class MultithreadingDemo extends Thread
+{
+    volatile long time;
+    final int max_diff = 5000;
+    String lastCommand;
+    volatile boolean pause = false;
+
+    boolean checkLoop(){
+//        System.out.println("Pause inside fucntion is "+ pause);
+
+        if(this.pause){
+            System.out.println("Pause is trie");
+            return false;
+        }
+        double diff = (System.nanoTime()-this.time)/Math.pow(10,6);
+        return diff > max_diff;
+    }
+
+    MultithreadingDemo(long time){
+        super();
+        this.time = time;
+        this.lastCommand = "";
+    }
+
+    public void run()
+    {
+        while(true) {
+            try {
+//                System.out.println("Hello");
+                if(!this.pause) {
+                    if (checkLoop()) {
+                        if(checkLoop()) { // Don't know why it works but it does work
+                            System.out.println("Your Program execution has stuck in loop");
+                            System.out.println("This happened while executing:-");
+                            System.out.println(lastCommand);
+                            System.out.println("Exiting program execution");
+                            System.exit(0);
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    void setTime(long time){
+        this.time = time;
+    }
+
+    void setLastCommand(String lastCommand){
+        this.lastCommand = lastCommand;
+    }
+
+    void pauseTimer(){
+        this.pause = true;
+    }
+
+    void resumeTimer(){
+        this.pause = false;
+    }
+
 }
