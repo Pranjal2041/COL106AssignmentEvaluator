@@ -111,6 +111,10 @@ public class DriverXtreme {
     static void getFirstPointOfDifference(int idx, OutputObject orig) {
         String path = root_path + "/outputs/" + correct_outputs[idx].replace(".out", ".ser");
         OutputObject corr = loadObject(path);
+        if(corr==null){
+            System.out.println("Can't load first point of difference. Because can't find .ser file.");
+            return;
+        }
 
         if (corr.num_test != orig.num_test || orig.num_test != orig.testCases.size()
                 || corr.num_test != corr.testCases.size()) {
@@ -283,11 +287,11 @@ public class DriverXtreme {
                 int code = 0;
                 if(!free_san){ // 00 if both right // 11 if both false
                     code += 2;
-                    // System.out.println("Sanity Issue detected in FMB");
+                    System.out.println("Sanity Issue detected in FMB");
                 }
                 if(!alloc_san){
                     code += 1;
-                    // System.out.println("Sanity Issue detected in AMB");
+                    System.out.println("Sanity Issue detected in AMB");
                 }
                 outputObject.addCommand(command,null,code,null,null);
                 break;
@@ -459,15 +463,11 @@ public class DriverXtreme {
             in.close();
             fileIn.close();
          }catch(FileNotFoundException e){
-             System.out.println("Cannot find .ser file for generating report");
              return null;
          } 
          catch (IOException i) {
-            i.printStackTrace();
             return null;
          } catch (ClassNotFoundException c) {
-            System.out.println(".ser file not found,Cannot generate first point of difference");
-            c.printStackTrace();
             return null;
          }
 
