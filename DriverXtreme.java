@@ -93,7 +93,8 @@ public class DriverXtreme {
         }
 
         if(complexTestCases){
-            System.out.println("Now testing time output for Complexity Case. For this time taken in AVL should be substantially low as compared to BST.");
+            System.out.println("Now testing time output for Complexity Case. For this time taken in "+
+            "AVL should be visibly low(around 3 times) as compared to BST.\n Yet remember it will take a lot of time in both implementations, so Sit Back and Relax.");
             complex_file_name = testCaseGenerator.generateComplexTestCase();
             OutputObject complexOutputObj = testInputs(complex_file_name + ".in",
             output_folder + "/" + name + "_output" + "_" + "complex" + "_" + SEED, generateReport);
@@ -679,7 +680,7 @@ class TestCaseGenerator{
     String generateComplexTestCase(){
         String file_name = "";
         String suff = "complex";
-        int test_cases = 100;
+        int test_cases = 5;
         try {
 
             random.setSeed(seed);  // Restart the seed value
@@ -756,7 +757,7 @@ class TestCaseGenerator{
 
     void addComplexCase(FileWriter f) throws IOException {
         double free_weightage = random.nextDouble();
-        free_weightage = free_weightage*(0.06) + 0.04;
+        free_weightage = free_weightage*(0.02) + 0.04;
         int size = (int) Math.pow(10, 6);
         int n_comm = size/20;
         f.write(size+"\n");
@@ -765,9 +766,9 @@ class TestCaseGenerator{
             String comm = "";
             Integer val = null;
             double type = random.nextDouble();
-            if (type < 0.04) {
+            if (type < 0.02) {
                 comm = "Sanity";
-            } else if (type > (assign_num==1?1:0.94)) {
+            } else if (type > (assign_num==1?1:0.98)) {
                 comm = "Defrag";
             } else if (type > free_weightage) { 
                 comm = "Alloc";
@@ -873,7 +874,7 @@ class CodeEvaluater{
 class MultithreadingDemo extends Thread
 {
     volatile long time;
-    final int max_diff = 5000;
+    final int max_diff = 10000;
     String lastCommand;
     volatile boolean pause = false;
     volatile boolean running = true;
