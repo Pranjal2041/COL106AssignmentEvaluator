@@ -6,6 +6,7 @@
 * New Test Cases which are smaller for faster inference. To test larger test file run `java DriverXtreme --large`.
 * Show the command executed after which first difference in output files is found, for faster debugging.
 * Show the command executed in case an error is thrown or program is stuck in loop.
+* Add special test case for validating AVL implementation is faster than BST. To run on AVL use `java DriverXtreme --complex` and for BST use `java -Xss16m DriverXtreme --complex 3`. AVL should be approximately 3 times faster than BST for this case.
 
 ### How To Use
 
@@ -48,7 +49,7 @@ The program is quite modular in its design, and can be used to generate differen
 
 2. `assign_num`:- Change this to evaluate a different assignment(Default is 2). Note:- You will also need to change `correct_outputs` for evaluation to work correctly for different assignment number.
 
-3. `test_cases_lengths` & `test_cases_names` :- Contains number of test cases in a single input file and name of corr test case file. Change this for smaller or larger inputs.(Note:- Since seed is not reset while creating a new file changing permutation of `test_cases_lengths` will change the corresponding output.
+3. `test_cases_lengths` & `test_cases_names` :- Contains number of test cases in a single input file and name of corr test case file. Change this for smaller or larger inputs. Note:- Since seed is not reset while creating a new file changing permutation of `test_cases_lengths` will change the corresponding output. Although for complex test case seed is reset, so it won't make a difference.
 
 4. `correct_outputs`:- The names of corresponding correct output files against which your output will be checked. Comment this if you don't want to automatically evaluate your code.
 
@@ -61,6 +62,7 @@ The program is quite modular in its design, and can be used to generate differen
 To use enter these commands after java DriverXtreme. For example to invoke all arguments, type `java DriverXtreme --large --report 3`
 
 * `--large` :- Use to enable large test case
+* `--complex` :- Use to enable performance evaluation(i.e AVL is faster than BST) test case.
 * `--report` :- Enables report generation
 * assign_num :- Enter assignment number to check your code on (Default is 3).
 
