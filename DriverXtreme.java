@@ -19,11 +19,13 @@ public class DriverXtreme {
     // Comment the next line if you don't want to evaluate
     static final String[] correct_outputs = { "pranjal_output_small_120411.out", "pranjal_output_medium_120411.out",
             "pranjal_output_large_120411.out" };
+    static final String complexity_case_correct_output = "pranjal_output_complex_120411.out";
     // static final String[] correct_outputs = {};
 
     static final String root_path = ".";
 
     static boolean largeTestCases = false;
+    static boolean complexTestCases = false;
 
     static String name;
     static String output_folder;
@@ -35,12 +37,13 @@ public class DriverXtreme {
 
     public static void main(String[] args) throws IOException {
 
-        ArgParser argParser = new ArgParser(largeTestCases, assign_num, generateReport);
+        ArgParser argParser = new ArgParser(largeTestCases, assign_num, generateReport,complexTestCases);
 
         argParser.parseArguments(args);
         largeTestCases = argParser.largeTestCase;
         assign_num = argParser.assign_num;
         generateReport = argParser.generateReport;
+        complexTestCases = argParser.complexTestCases;
 
         // GENERATE TEST CASES
         Scanner sc = new Scanner(System.in);
@@ -51,12 +54,15 @@ public class DriverXtreme {
         TestCaseGenerator testCaseGenerator = new TestCaseGenerator(SEED, name, root_path, assign_num, output_folder,
                 PRIME);
         String[] file_names = new String[test_cases_lengths.length];
+        String complex_file_name;
         for (int i = 0; i < file_names.length; i++) {
             if (test_cases_lengths[i] >= 1000 && !largeTestCases) {
                 continue;
             }
             file_names[i] = testCaseGenerator.generateTestCases(test_cases_lengths[i], test_cases_names[i]);
         }
+        
+
         System.out.println("Test Cases Generated Successfully");
         OutputObject[] outputObjs = new OutputObject[file_names.length];
         for (int i = 0; i < file_names.length; i++) {
@@ -67,6 +73,7 @@ public class DriverXtreme {
                     output_folder + "/" + name + "_output" + "_" + test_cases_names[i] + "_" + SEED, generateReport);
             resetTimeTaken();
         }
+        
 
         CodeEvaluater codeEvaluater = new CodeEvaluater();
         for (int i = 0; i < correct_outputs.length; i++) {
@@ -82,6 +89,21 @@ public class DriverXtreme {
                 System.out.println("-----------------------");
                 System.out.println("Loading first point of difference. Please Wait...");
                 getFirstPointOfDifference(i, outputObjs[i]);
+            }
+        }
+
+        if(complexTestCases){
+            System.out.println("Now testing time output for Complexity Case. For this time taken in AVL should be substantially low as compared to BST.");
+            complex_file_name = testCaseGenerator.generateComplexTestCase();
+            OutputObject complexOutputObj = testInputs(complex_file_name + ".in",
+            output_folder + "/" + name + "_output" + "_" + "complex" + "_" + SEED, generateReport);
+            resetTimeTaken();
+            boolean temp = codeEvaluater.evaluateCode(root_path + "/" + output_folder + "/" + name + "_output" + "_"
+                    + "complex" + "_" + SEED + ".out", root_path + "/" + complexity_case_correct_output);
+            if (temp) {
+                System.out.println("Output of " + complex_file_name + " has matched");
+            } else {
+                System.out.println("Output of " + complex_file_name + " doesnt match");
             }
         }
 
@@ -484,11 +506,13 @@ class ArgParser{
     boolean largeTestCase;
     int assign_num;
     boolean generateReport;
+    boolean complexTestCases;
 
-    ArgParser(boolean largeTestCase,int assign_num,boolean generateReport){
+    ArgParser(boolean largeTestCase,int assign_num,boolean generateReport,boolean complexTestCases){
         this.largeTestCase = largeTestCase;
         this.assign_num = assign_num;
         this.generateReport = generateReport;
+        this.complexTestCases = complexTestCases;
     }
 
     void parseArguments(String[] args){
@@ -499,6 +523,9 @@ class ArgParser{
                     break;
                 case "--report":
                     this.generateReport = true;
+                    break;
+                case "--complex":
+                    this.complexTestCases = true;
                     break;
                 default:
                     if(a.matches("-?\\d+")){
@@ -649,6 +676,47 @@ class TestCaseGenerator{
         random.setSeed(seed);
     }
 
+    String generateComplexTestCase(){
+        String file_name = "";
+        String suff = "complex";
+        int test_cases = 100;
+        try {
+
+            random.setSeed(seed);  // Restart the seed value
+
+
+            File file = new File(root_path+"/"+output_folder);
+
+            //Creating the directory
+
+            //noinspection ResultOfMethodCallIgnored
+            file.mkdir();
+
+            file_name = output_folder + "/" + name + "_test_case_" + suff + "_" + seed;
+            FileWriter myWriter = new FileWriter(root_path + "/" + file_name+ ".in");
+
+
+            myWriter.write(this.seed+"\n");
+            myWriter.write("START\n");
+            myWriter.write(test_cases+"\n");
+
+            for (int i = 0; i < test_cases; i++) {
+                if ((100.0 * i / test_cases) % 10 == 0 && i != 0) {
+                    System.out.println("Generation " + (100*i/test_cases) + "% complete");
+                }
+                addComplexCase(myWriter);
+            }
+            System.out.println("Generation of " + suff + " Complete");
+
+            myWriter.close();
+        }catch (Exception e){
+            System.out.println("Error generating file:- "+e);
+            return file_name;
+        }
+        return file_name;
+   
+    }
+
     String generateTestCases(int test_cases,String suff) throws IOException {
         String file_name = "";
         try {
@@ -684,6 +752,38 @@ class TestCaseGenerator{
         }
         return file_name;
 
+    }
+
+    void addComplexCase(FileWriter f) throws IOException {
+        double free_weightage = random.nextDouble();
+        free_weightage = free_weightage*(0.06) + 0.04;
+        int size = (int) Math.pow(10, 6);
+        int n_comm = size/20;
+        f.write(size+"\n");
+        f.write(n_comm+"\n");
+        for(int i =0;i<n_comm;i++) {
+            String comm = "";
+            Integer val = null;
+            double type = random.nextDouble();
+            if (type < 0.04) {
+                comm = "Sanity";
+            } else if (type > (assign_num==1?1:0.94)) {
+                comm = "Defrag";
+            } else if (type > free_weightage) { 
+                comm = "Alloc";
+                val = (int) (random.nextDouble() * 15);
+            } else {
+                comm = "Free";
+                double inv = random.nextDouble();
+                if (inv > 0.99) {
+                    val = -(int) (random.nextDouble() * size);
+                } else {
+                    val = (int) (random.nextDouble() * Math.pow(10, 7) + PRIME);
+                }
+            }
+            String st = comm + ' ' + (val == null ? "" : val.toString());//('' if val is None else str(val))+'\n'
+            f.write(st+"\n");
+        }
     }
 
     void addCase(int max_size,FileWriter f,boolean staticWeightage) throws IOException {
