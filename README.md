@@ -6,7 +6,7 @@
 * New Test Cases which are smaller for faster inference. To test larger test file run `java DriverXtreme --large`.
 * Show the command executed after which first difference in output files is found, for faster debugging.
 * Show the command executed in case an error is thrown or program is stuck in loop.
-* Add special test case for validating AVL implementation is faster than BST. To run on AVL use `java DriverXtreme --complex` and for BST use `java -Xss16m DriverXtreme --complex 2`. AVL should be approximately 3 times faster than BST for this case.
+* Add special test case for validating AVL implementation is faster than BST. To run on AVL use `java DriverXtreme --complex` and for BST use `java -Xss16m DriverXtreme --complex 2`. AVL should be atleast 100 times faster than BST for this case.
 
 ### How To Use
 
