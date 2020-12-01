@@ -164,7 +164,7 @@ public class DriverXtreme {
                 if (!command_are_equal(commOrig, commCorr)) {
                     System.out.println(
                             "The first point of difference is in Test Case: " + (i + 1) + " Comm. numb: " + (j + 1));
-                    if (!commCorr.type.equals(commOrig.type) || !commCorr.val.equals(commOrig.val)) {
+                    if (commCorr.val!=null && !commCorr.type.equals(commOrig.type) || !commCorr.val.equals(commOrig.val)) {
                         System.out.println(commOrig.type + " " + commCorr.type);
                         System.out.println(commOrig.val.equals(commCorr.val));
                         System.out.println("Commands executed are different. Possible issue in checker file");
@@ -757,7 +757,7 @@ class TestCaseGenerator{
 
     void addComplexCase(FileWriter f) throws IOException {
         double free_weightage = random.nextDouble();
-        free_weightage = free_weightage*(0.02) + 0.04;
+        free_weightage = free_weightage*(0.02) + 0.02;
         int size = (int) Math.pow(10, 6);
         int n_comm = size/20;
         f.write(size+"\n");
@@ -766,7 +766,7 @@ class TestCaseGenerator{
             String comm = "";
             Integer val = null;
             double type = random.nextDouble();
-            if (type < 0.02) {
+            if (type < 0.00) {
                 comm = "Sanity";
             } else if (type > (assign_num==1?1:0.98)) {
                 comm = "Defrag";
